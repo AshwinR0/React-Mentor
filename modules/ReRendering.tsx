@@ -2,47 +2,55 @@
 import React, { useState, useMemo, useCallback, memo } from 'react';
 import RenderFlash from '../components/RenderFlash';
 
-// --- Shared Sub-components ---
+// --- Shared Sub-components (Now with internal RenderFlash for accurate tracking) ---
 
 const SimpleChild = ({ name, icon = '👶' }: { name: string, icon?: string }) => (
-  <div className="h-32 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center p-4 text-center">
-    <span className="text-2xl mb-2">{icon}</span>
-    <p className="text-xs font-bold text-slate-400 uppercase">{name}</p>
-    <p className="text-[10px] text-slate-400">I render when my parent does.</p>
-  </div>
+  <RenderFlash name={name}>
+    <div className="h-32 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center p-4 text-center">
+      <span className="text-2xl mb-2">{icon}</span>
+      <p className="text-xs font-bold text-slate-400 uppercase">{name}</p>
+      <p className="text-[10px] text-slate-400">I render when my parent does.</p>
+    </div>
+  </RenderFlash>
 );
 
 const PropChild = ({ value }: { value: number }) => (
-  <div className="h-32 bg-indigo-50 border border-indigo-100 rounded-xl flex flex-col items-center justify-center p-4 text-center">
-    <span className="text-2xl mb-1">📦</span>
-    <p className="text-xs font-bold text-indigo-400 uppercase">Prop Child</p>
-    <p className="text-lg font-black text-indigo-600">{value}</p>
-    <p className="text-[10px] text-indigo-400">My prop changed!</p>
-  </div>
+  <RenderFlash name="Prop Child">
+    <div className="h-32 bg-indigo-50 border border-indigo-100 rounded-xl flex flex-col items-center justify-center p-4 text-center">
+      <span className="text-2xl mb-1">📦</span>
+      <p className="text-xs font-bold text-indigo-400 uppercase">Prop Child</p>
+      <p className="text-lg font-black text-indigo-600">{value}</p>
+      <p className="text-[10px] text-indigo-400">My prop changed!</p>
+    </div>
+  </RenderFlash>
 );
 
 const MemoChild = memo(({ name }: { name: string }) => (
-  <div className="h-32 bg-green-50 border border-green-200 rounded-xl flex flex-col items-center justify-center p-4 text-center">
-    <span className="text-2xl mb-2">🛡️</span>
-    <p className="text-xs font-bold text-green-600 uppercase">Memo Child</p>
-    <p className="text-[10px] text-green-500">I only render if my props change.</p>
-  </div>
+  <RenderFlash name={name}>
+    <div className="h-32 bg-green-50 border border-green-200 rounded-xl flex flex-col items-center justify-center p-4 text-center">
+      <span className="text-2xl mb-2">🛡️</span>
+      <p className="text-xs font-bold text-green-600 uppercase">Memo Child</p>
+      <p className="text-[10px] text-green-500">I only render if my props change.</p>
+    </div>
+  </RenderFlash>
 ));
 
-const CallbackChild = memo(({ onClick }: { onClick: () => void }) => (
-  <div className="h-32 bg-amber-50 border border-amber-200 rounded-xl flex flex-col items-center justify-center p-4 text-center">
-    <span className="text-2xl mb-1">🔗</span>
-    <p className="text-xs font-bold text-amber-600 uppercase">Callback Child</p>
-    <button 
-      onClick={onClick}
-      className="mt-2 px-3 py-1 bg-white border border-amber-200 rounded text-[10px] font-bold text-amber-600"
-    >
-      Run Callback
-    </button>
-  </div>
+const CallbackChild = memo(({ name, onClick }: { name: string, onClick: () => void }) => (
+  <RenderFlash name={name}>
+    <div className="h-32 bg-amber-50 border border-amber-200 rounded-xl flex flex-col items-center justify-center p-4 text-center">
+      <span className="text-2xl mb-1">🔗</span>
+      <p className="text-xs font-bold text-amber-600 uppercase">{name}</p>
+      <button 
+        onClick={onClick}
+        className="mt-2 px-3 py-1 bg-white border border-amber-200 rounded text-[10px] font-bold text-amber-600"
+      >
+        Run Callback
+      </button>
+    </div>
+  </RenderFlash>
 ));
 
-// --- Specific Lab Wrappers to Ensure Correct Re-render Scoping ---
+// --- Specific Lab Wrappers ---
 
 const Lab1 = () => {
   const [count, setCount] = useState(0);
@@ -54,8 +62,8 @@ const Lab1 = () => {
           <button onClick={() => setCount(p => p + 1)} className="px-4 py-2 bg-slate-800 text-white rounded-lg text-xs font-bold transition-transform active:scale-95">Update Parent ({count})</button>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <RenderFlash name="Child A"><SimpleChild name="Child A" /></RenderFlash>
-          <RenderFlash name="Child B"><SimpleChild name="Child B" /></RenderFlash>
+          <SimpleChild name="Child A" />
+          <SimpleChild name="Child B" />
         </div>
       </div>
     </RenderFlash>
@@ -69,7 +77,7 @@ const Lab2 = () => {
         <h4 className="font-bold text-slate-800">Parent Component (Static)</h4>
         <div className="grid grid-cols-2 gap-4">
           <ChildWithState name="Child A" />
-          <RenderFlash name="Child B"><SimpleChild name="Child B" icon="😴" /></RenderFlash>
+          <SimpleChild name="Child B" icon="😴" />
         </div>
       </div>
     </RenderFlash>
@@ -97,7 +105,7 @@ const Lab3 = () => {
           <h4 className="font-bold text-slate-800">Parent (Data Source)</h4>
           <button onClick={() => setVal(p => p + 1)} className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold">Send New Prop</button>
         </div>
-        <RenderFlash name="Prop Child"><PropChild value={val} /></RenderFlash>
+        <PropChild value={val} />
       </div>
     </RenderFlash>
   );
@@ -113,8 +121,8 @@ const Lab4 = () => {
       <RenderFlash name="Parent">
         <div className="bg-white p-6 rounded-2xl border-2 border-slate-200 space-y-6">
           <div className="grid grid-cols-2 gap-4">
-            <RenderFlash name="Standard Child"><SimpleChild name="Standard" /></RenderFlash>
-            <RenderFlash name="Memoized Child"><MemoChild name="Memoized" /></RenderFlash>
+            <SimpleChild name="Standard Child" />
+            <MemoChild name="Memoized Child" />
           </div>
         </div>
       </RenderFlash>
@@ -134,11 +142,11 @@ const Lab5 = () => {
         <div className="bg-white p-6 rounded-2xl border-2 border-slate-200 grid grid-cols-2 gap-4">
           <div className="space-y-4">
             <p className="text-[10px] font-bold text-rose-500 uppercase text-center">Inline Function</p>
-            <RenderFlash name="Inline Child"><CallbackChild onClick={() => alert('Hi')} /></RenderFlash>
+            <CallbackChild name="Inline Child" onClick={() => alert('Hi')} />
           </div>
           <div className="space-y-4">
             <p className="text-[10px] font-bold text-green-500 uppercase text-center">useCallback</p>
-            <RenderFlash name="Stable Child"><CallbackChild onClick={stableCallback} /></RenderFlash>
+            <CallbackChild name="Stable Child" onClick={stableCallback} />
           </div>
         </div>
       </RenderFlash>
@@ -233,7 +241,7 @@ const ReRendering: React.FC = () => {
         <h3 className="text-3xl font-bold text-slate-900 mb-4">Visualizing the Render Cycle</h3>
         <p className="text-slate-600 mb-8 leading-relaxed">
           One of the biggest React mysteries is <strong>when</strong> a component refreshes. 
-          Use these interactive labs to build an intuition for how React's "Magic Mirror" works.
+          Use these interactive labs to build an intuition for how React's \"Magic Mirror\" works.
         </p>
 
         {/* Demo Navigator */}
