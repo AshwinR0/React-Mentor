@@ -368,7 +368,7 @@ const RTKComparison = () => {
                </div>
                <div>
                  <p className="text-indigo-400">// 2. Action Creator</p>
-                 <p className="text-white">const inc = () => ({`{ type: INC }`});</p>
+                 <p className="text-white">const inc = () =&gt; ({`{ type: INC }`});</p>
                </div>
                <div>
                  <p className="text-indigo-400">// 3. Reducer (Manual Cloner)</p>
@@ -388,7 +388,7 @@ const RTKComparison = () => {
                  <p className="text-white pl-4">name: 'counter',</p>
                  <p className="text-white pl-4">initialState: {`{ val: 0 }`},</p>
                  <p className="text-white pl-4">reducers: {`{`}</p>
-                 <p className="text-emerald-400 pl-8">increment: (state) => {'{'}</p>
+                 <p className="text-emerald-400 pl-8">increment: (state) =&gt; {'{}'}</p>
                  <p className="text-emerald-400 pl-12">// Safe "mutation" thanks to Immer!</p>
                  <p className="text-emerald-400 pl-12">state.val += 1;</p>
                  <p className="text-emerald-400 pl-8">{'}'}</p>
