@@ -18,9 +18,11 @@ import FolderStructure from './modules/FolderStructure';
 import HooksDeepDive from './modules/HooksDeepDive';
 import PerformanceLab from './modules/PerformanceLab';
 import ModernReact from './modules/ModernReact';
+import ReduxDeepDive from './modules/ReduxDeepDive';
 
 const App: React.FC = () => {
   const [activeLesson, setActiveLesson] = useState<LessonId>(LessonId.WHAT_IS_REACT);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const renderActiveLesson = () => {
     switch (activeLesson) {
@@ -36,6 +38,7 @@ const App: React.FC = () => {
       case LessonId.USE_CONTEXT_DEEP_DIVE: return <UseContextDeepDive />;
       case LessonId.USE_REDUCER_DEEP_DIVE: return <UseReducerDeepDive />;
       case LessonId.HOOKS_DEEP_DIVE: return <HooksDeepDive />;
+      case LessonId.REDUX_DEEP_DIVE: return <ReduxDeepDive />;
       case LessonId.PERFORMANCE_LAB: return <PerformanceLab />;
       case LessonId.MODERN_REACT: return <ModernReact />;
       case LessonId.CHALLENGES: return <Challenges />;
@@ -43,13 +46,26 @@ const App: React.FC = () => {
     }
   };
 
+  const handleSelectLesson = (id: LessonId) => {
+    setActiveLesson(id);
+    setIsMenuOpen(false);
+  };
+
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar activeLesson={activeLesson} onSelectLesson={setActiveLesson} />
+      <Sidebar 
+        activeLesson={activeLesson} 
+        onSelectLesson={handleSelectLesson} 
+        isOpen={isMenuOpen} 
+        onClose={() => setIsMenuOpen(false)} 
+      />
       <div className="flex-1 flex flex-col min-w-0">
-        <Header activeLesson={activeLesson} />
+        <Header 
+          activeLesson={activeLesson} 
+          onOpenMenu={() => setIsMenuOpen(true)} 
+        />
         <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-[#fbfcfd]">
-          <div className="max-w-5_xl mx-auto pb-20">
+          <div className="max-w-5xl mx-auto pb-20">
             {renderActiveLesson()}
           </div>
         </main>

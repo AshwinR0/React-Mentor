@@ -5,6 +5,8 @@ import { LessonId } from '../types';
 interface SidebarProps {
   activeLesson: LessonId;
   onSelectLesson: (id: LessonId) => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 const sections = [
@@ -40,50 +42,77 @@ const sections = [
     lessons: [
       { id: LessonId.PERFORMANCE_LAB, title: 'Performance Lab', icon: '🚀' },
       { id: LessonId.MODERN_REACT, title: 'Modern Patterns', icon: '✨' },
+      { id: LessonId.REDUX_DEEP_DIVE, title: 'Redux State', icon: '💿' },
       { id: LessonId.CHALLENGES, title: 'Practice Lab', icon: '🏆' },
     ]
   }
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ activeLesson, onSelectLesson }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeLesson, onSelectLesson, isOpen, onClose }) => {
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col h-full">
-      <div className="p-6">
-        <h1 className="text-xl font-bold text-indigo-600 flex items-center gap-2">
-          <span className="text-2xl">⚛️</span> ReactTutor
-        </h1>
-        <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider font-semibold">Senior Path</p>
-      </div>
-      <nav className="flex-1 px-3 space-y-6 overflow-y-auto pb-10">
-        {sections.map((section) => (
-          <div key={section.label}>
-            <p className="px-3 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{section.label}</p>
-            <div className="space-y-1">
-              {section.lessons.map((lesson) => (
-                <button
-                  key={lesson.id}
-                  onClick={() => onSelectLesson(lesson.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeLesson === lesson.id
-                      ? 'bg-indigo-50 text-indigo-700 shadow-sm shadow-indigo-100'
-                      : 'text-slate-600 hover:bg-slate-50'
-                  }`}
-                >
-                  <span className="text-base">{lesson.icon}</span>
-                  {lesson.title}
-                </button>
-              ))}
-            </div>
+    <>
+      {/* Mobile Backdrop */}
+      <div 
+        className={`fixed inset-0 bg-slate-900/50 z-40 transition-opacity md:hidden ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        onClick={onClose}
+      />
+
+      <aside className={`
+        fixed md:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 
+        transform transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        flex flex-col h-full
+      `}>
+        <div className="p-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-indigo-600 flex items-center gap-2">
+              <span className="text-2xl">⚛️</span> ReactTutor
+            </h1>
+            <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider font-semibold">Senior Path</p>
           </div>
-        ))}
-      </nav>
-      <div className="p-4 border-t border-slate-100 bg-slate-50/50">
-        <div className="bg-white p-3 rounded-lg border border-slate-200 text-xs text-slate-500 shadow-sm">
-          <p className="font-semibold text-slate-700">Pro Tip:</p>
-          <p>Understanding the tooling is 50% of becoming a React expert!</p>
+          <button 
+            onClick={onClose}
+            className="md:hidden p-2 text-slate-400 hover:text-slate-600 rounded-lg"
+            aria-label="Close Menu"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
-      </div>
-    </aside>
+        
+        <nav className="flex-1 px-3 space-y-6 overflow-y-auto pb-10">
+          {sections.map((section) => (
+            <div key={section.label}>
+              <p className="px-3 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{section.label}</p>
+              <div className="space-y-1">
+                {section.lessons.map((lesson) => (
+                  <button
+                    key={lesson.id}
+                    onClick={() => onSelectLesson(lesson.id)}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      activeLesson === lesson.id
+                        ? 'bg-indigo-50 text-indigo-700 shadow-sm shadow-indigo-100'
+                        : 'text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span className="text-base">{lesson.icon}</span>
+                    {lesson.title}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+        
+        <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+          <div className="bg-white p-3 rounded-lg border border-slate-200 text-xs text-slate-500 shadow-sm">
+            <p className="font-semibold text-slate-700">Pro Tip:</p>
+            <p>Understanding the tooling is 50% of becoming a React expert!</p>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 };
 
