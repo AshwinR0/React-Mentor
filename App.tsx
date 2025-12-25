@@ -20,6 +20,7 @@ import CustomHooks from './modules/CustomHooks';
 import PerformanceLab from './modules/PerformanceLab';
 import ModernReact from './modules/ModernReact';
 import ReduxDeepDive from './modules/ReduxDeepDive';
+import Footer from './components/Footer';
 
 const App: React.FC = () => {
   const [activeLesson, setActiveLesson] = useState<LessonId>(LessonId.WHAT_IS_REACT);
@@ -69,6 +70,7 @@ const App: React.FC = () => {
         <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-[#fbfcfd]">
           <div className="max-w-5xl mx-auto pb-20">
             {renderActiveLesson()}
+            <Footer />
           </div>
         </main>
       </div>
