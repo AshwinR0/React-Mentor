@@ -1,0 +1,5 @@
+{
+  "name": "React Visual Tutor",
+  "description": "An interactive, visual-first learning platform for absolute React beginners, featuring live render tracking and state mental models.",
+  "requestFramePermissions": []
+}
