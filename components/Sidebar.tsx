@@ -40,6 +40,7 @@ const sections = [
   {
     label: 'Architecture',
     lessons: [
+      { id: LessonId.CUSTOM_HOOKS, title: 'Custom Hooks', icon: '🎨' },
       { id: LessonId.PERFORMANCE_LAB, title: 'Performance Lab', icon: '🚀' },
       { id: LessonId.MODERN_REACT, title: 'Modern Patterns', icon: '✨' },
       { id: LessonId.REDUX_DEEP_DIVE, title: 'Redux State', icon: '💿' },

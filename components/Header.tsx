@@ -15,6 +15,7 @@ const Header: React.FC<HeaderProps> = ({ activeLesson, onOpenMenu }) => {
       case LessonId.COMPONENTS_PROPS: return 'Legos for Web';
       case LessonId.STATE_BASICS: return 'The Component Brain';
       case LessonId.RE_RENDERING: return 'The Magic Mirror';
+      case LessonId.CUSTOM_HOOKS: return 'The Master Craftsman';
       case LessonId.EFFECTS_LAB: return 'Syncing with the World';
       case LessonId.USE_REF_DEEP_DIVE: return 'The Secret Storage';
       case LessonId.USE_CONTEXT_DEEP_DIVE: return 'The Wireless Connection';

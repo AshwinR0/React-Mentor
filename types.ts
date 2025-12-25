@@ -7,6 +7,7 @@ export enum LessonId {
   COMPONENTS_PROPS = 'components-props',
   STATE_BASICS = 'state-basics',
   RE_RENDERING = 're-rendering',
+  CUSTOM_HOOKS = 'custom-hooks',
   PERFORMANCE_LAB = 'performance-lab',
   EFFECTS_LAB = 'effects-lab',
   USE_REF_DEEP_DIVE = 'use-ref-deep-dive',
