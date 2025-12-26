@@ -39,12 +39,12 @@ const App: React.FC = () => {
       case LessonId.USE_REF_DEEP_DIVE: return <UseRefDeepDive />;
       case LessonId.USE_CONTEXT_DEEP_DIVE: return <UseContextDeepDive />;
       case LessonId.USE_REDUCER_DEEP_DIVE: return <UseReducerDeepDive />;
-      case LessonId.HOOKS_DEEP_DIVE: return <HooksDeepDive />;
+      // case LessonId.HOOKS_DEEP_DIVE: return <HooksDeepDive />;
       case LessonId.CUSTOM_HOOKS: return <CustomHooks />;
       case LessonId.REDUX_DEEP_DIVE: return <ReduxDeepDive />;
       case LessonId.PERFORMANCE_LAB: return <PerformanceLab />;
       case LessonId.MODERN_REACT: return <ModernReact />;
-      case LessonId.CHALLENGES: return <Challenges />;
+      // case LessonId.CHALLENGES: return <Challenges />;
       default: return <IntroLesson />;
     }
   };
@@ -68,7 +68,7 @@ const App: React.FC = () => {
           onOpenMenu={() => setIsMenuOpen(true)} 
         />
         <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-[#fbfcfd]">
-          <div className="max-w-5xl mx-auto pb-20">
+          <div className="max-w-5xl mx-auto">
             {renderActiveLesson()}
             <Footer />
           </div>

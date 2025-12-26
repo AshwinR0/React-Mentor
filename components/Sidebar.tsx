@@ -34,7 +34,7 @@ const sections = [
       { id: LessonId.USE_REF_DEEP_DIVE, title: 'useRef Deep Dive', icon: '🔦' },
       { id: LessonId.USE_CONTEXT_DEEP_DIVE, title: 'useContext Deep Dive', icon: '📡' },
       { id: LessonId.USE_REDUCER_DEEP_DIVE, title: 'useReducer Deep Dive', icon: '🎛️' },
-      { id: LessonId.HOOKS_DEEP_DIVE, title: 'Hooks Deep Dive', icon: '🪝' },
+      // { id: LessonId.HOOKS_DEEP_DIVE, title: 'Hooks Deep Dive', icon: '🪝' },
     ]
   },
   {
@@ -44,7 +44,7 @@ const sections = [
       { id: LessonId.PERFORMANCE_LAB, title: 'Performance Lab', icon: '🚀' },
       { id: LessonId.MODERN_REACT, title: 'Modern Patterns', icon: '✨' },
       { id: LessonId.REDUX_DEEP_DIVE, title: 'Redux State', icon: '💿' },
-      { id: LessonId.CHALLENGES, title: 'Practice Lab', icon: '🏆' },
+      // { id: LessonId.CHALLENGES, title: 'Practice Lab', icon: '🏆' },
     ]
   }
 ];

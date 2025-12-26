@@ -21,7 +21,7 @@ const Header: React.FC<HeaderProps> = ({ activeLesson, onOpenMenu }) => {
       case LessonId.USE_CONTEXT_DEEP_DIVE: return 'The Wireless Connection';
       case LessonId.USE_REDUCER_DEEP_DIVE: return 'The Flight Controller';
       case LessonId.REDUX_DEEP_DIVE: return 'Redux: State at Scale';
-      case LessonId.CHALLENGES: return 'Ready for Takeoff';
+      // case LessonId.CHALLENGES: return 'Ready for Takeoff';
       default: return 'React Visual Tutor';
     }
   };

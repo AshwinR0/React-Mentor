@@ -13,10 +13,10 @@ export enum LessonId {
   USE_REF_DEEP_DIVE = 'use-ref-deep-dive',
   USE_CONTEXT_DEEP_DIVE = 'use-context-deep-dive',
   USE_REDUCER_DEEP_DIVE = 'use-reducer-deep-dive',
-  HOOKS_DEEP_DIVE = 'hooks-deep-dive',
+  // HOOKS_DEEP_DIVE = 'hooks-deep-dive',
   REDUX_DEEP_DIVE = 'redux-deep-dive',
   MODERN_REACT = 'modern-react',
-  CHALLENGES = 'challenges'
+  // CHALLENGES = 'challenges'
 }
 
 export interface Lesson {
