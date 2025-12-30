@@ -103,7 +103,7 @@ const MemoizedChild = memo(({ name, data }: { name: string, data: string }) => (
 const MemoBattleDemo = () => {
   const [parentCount, setParentCount] = useState(0);
   const [childData, setChildData] = useState("Hello");
-  const [pulse, setPulse] = useState(false);
+  const [pulseKey, setPulseKey] = useState(0);
 
   const triggerParentRender = () => {
     setParentCount(p => p + 1);
@@ -116,8 +116,10 @@ const MemoBattleDemo = () => {
   };
 
   const triggerPulse = () => {
-    setPulse(true);
-    setTimeout(() => setPulse(false), 500);
+    // Incrementing pulseKey triggers a single render.
+    // CSS animations with 'key={pulseKey}' handle the visual reset 
+    // without requiring a second 'setPulse(false)' re-render.
+    setPulseKey(k => k + 1);
   };
 
   return (
@@ -144,20 +146,26 @@ const MemoBattleDemo = () => {
           </div>
         </div>
 
-        {/* The "Parent Block" */}
+        {/* The "Parent Block" with transient pulse */}
         <div className="relative p-6 bg-white border border-slate-200 rounded-2xl text-center space-y-2">
-           <div className={`absolute inset-0 bg-indigo-500/10 rounded-2xl transition-opacity duration-300 pointer-events-none ${pulse ? 'opacity-100' : 'opacity-0'}`}></div>
+           {pulseKey > 0 && (
+             <div key={`bg-${pulseKey}`} className="absolute inset-0 bg-indigo-500/10 rounded-2xl animate-pulse-bg pointer-events-none"></div>
+           )}
            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Parent Container</p>
            <p className="text-[11px] text-slate-500 italic">"I am re-rendering now..."</p>
         </div>
       </div>
 
       <div className="p-10 relative">
-        {/* Connection Lines with Visual Pulse */}
+        {/* Connection Lines with CSS Animation reset by key */}
+        {pulseKey > 0 && (
+          <>
+            <div key={`line-l-${pulseKey}`} className="absolute top-0 left-1/4 w-1 h-10 bg-indigo-400 origin-top pointer-events-none animate-pulse-line"></div>
+            <div key={`line-r-${pulseKey}`} className="absolute top-0 left-3/4 w-1 h-10 bg-indigo-400 origin-top pointer-events-none animate-pulse-line"></div>
+          </>
+        )}
         <div className="absolute top-0 left-1/4 w-px h-10 bg-slate-100"></div>
         <div className="absolute top-0 left-3/4 w-px h-10 bg-slate-100"></div>
-        <div className={`absolute top-0 left-1/4 w-1 h-10 bg-indigo-400 transition-all duration-500 origin-top pointer-events-none ${pulse ? 'scale-y-100 opacity-50' : 'scale-y-0 opacity-0'}`}></div>
-        <div className={`absolute top-0 left-3/4 w-1 h-10 bg-indigo-400 transition-all duration-500 origin-top pointer-events-none ${pulse ? 'scale-y-100 opacity-50' : 'scale-y-0 opacity-0'}`}></div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           <div className="space-y-4">
@@ -194,7 +202,8 @@ const MemoBattleDemo = () => {
 /**
  * --- REFACTORED USEMEMO VISUALIZER ---
  */
-const HeavyThinkingVisual = ({ value, label, mode, trigger }: { value: number, label: string, mode: 'standard' | 'memo', trigger: number }) => {
+// Fix for TS error: Typed as React.FC to allow 'key' prop and resolve assignability issues
+const HeavyThinkingVisual: React.FC<{ value: number, label: string, mode: 'standard' | 'memo', trigger: number }> = ({ value, label, mode, trigger }) => {
   const [status, setStatus] = useState<'idle' | 'working'>('idle');
   const [logicCycles, setLogicCycles] = useState(0);
   const lastValue = useRef(value);
@@ -271,9 +280,10 @@ const HeavyThinkingVisual = ({ value, label, mode, trigger }: { value: number, l
 };
 
 const MemoCacheDemo = () => {
-  const [input, setInput] = useState(10);
-  const [parentState, setParentState] = useState(0);
-  const [triggerCount, setTriggerCount] = useState(0);
+  // Fix for TS error: Being explicit with state types
+  const [input, setInput] = useState<number>(10);
+  const [parentState, setParentState] = useState<number>(0);
+  const [triggerCount, setTriggerCount] = useState<number>(0);
 
   const handleInputChange = () => {
     setInput(i => i + 1);

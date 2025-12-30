@@ -1,5 +1,233 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+
+const BabelTransformer = () => {
+  const [activeExample, setActiveExample] = useState('simple');
+  const [isCompiling, setIsCompiling] = useState(false);
+
+  const examples: Record<string, { jsx: string, js: string, title: string }> = {
+    simple: {
+      title: 'Simple Tag',
+      jsx: `<h1>Hello World</h1>`,
+      js: `React.createElement(\n  'h1', \n  null, \n  'Hello World'\n);`
+    },
+    props: {
+      title: 'With Props',
+      jsx: `<button className="blue" onClick={handleClick}>\n  Click Me\n</button>`,
+      js: `React.createElement(\n  'button', \n  { \n    className: 'blue', \n    onClick: handleClick \n  }, \n  'Click Me'\n);`
+    },
+    nested: {
+      title: 'Nested Tags',
+      jsx: `<div>\n  <p>Inside</p>\n</div>`,
+      js: `React.createElement(\n  'div', \n  null, \n  React.createElement(\n    'p', \n    null, \n    'Inside'\n  )\n);`
+    }
+  };
+
+  const handleCompile = () => {
+    setIsCompiling(true);
+    setTimeout(() => setIsCompiling(false), 800);
+  };
+
+  return (
+    <div className="bg-slate-900 rounded-3xl p-6 md:p-8 shadow-2xl border border-white/5">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div>
+          <h4 className="text-indigo-400 font-black text-xs uppercase tracking-widest mb-1">Babel Compiler Simulator</h4>
+          <p className="text-slate-400 text-[10px]">See how JSX is desugared into raw JavaScript</p>
+        </div>
+        <div className="flex bg-white/5 p-1 rounded-xl">
+          {Object.keys(examples).map((key) => (
+            <button
+              key={key}
+              onClick={() => { setActiveExample(key); handleCompile(); }}
+              className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${activeExample === key ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+            >
+              {examples[key].title}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative">
+        {/* Input Pane */}
+        <div className="space-y-2">
+          <div className="flex justify-between items-center px-2">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Your Code (JSX)</span>
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+          </div>
+          <div className="bg-slate-950 p-6 rounded-2xl border border-white/5 font-mono text-xs text-indigo-300 h-48 flex items-center overflow-auto">
+            <pre className="w-full"><code>{examples[activeExample].jsx}</code></pre>
+          </div>
+        </div>
+
+        {/* Central Transformer Icon (Desktop Only) */}
+        <div className="hidden lg:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+          <div className={`w-12 h-12 rounded-full bg-indigo-600 border-4 border-slate-900 flex items-center justify-center text-white shadow-2xl transition-all duration-500 ${isCompiling ? 'rotate-180 scale-125 bg-emerald-500' : ''}`}>
+            {isCompiling ? '⚡' : '⚙️'}
+          </div>
+        </div>
+
+        {/* Output Pane */}
+        <div className="space-y-2">
+          <div className="flex justify-between items-center px-2">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Babel Output (Plain JS)</span>
+            {isCompiling && <span className="text-[9px] font-black text-emerald-400 uppercase animate-pulse">Transforming...</span>}
+          </div>
+          <div className={`bg-slate-950 p-6 rounded-2xl border transition-all duration-500 font-mono text-xs h-48 flex items-center overflow-auto ${isCompiling ? 'border-emerald-500/50 bg-emerald-500/5 opacity-50' : 'border-white/5 text-emerald-400'}`}>
+            <pre className="w-full"><code>{examples[activeExample].js}</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8 flex flex-col md:flex-row items-center justify-center gap-6 text-center md:text-left">
+        <div className="p-4 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 flex items-center gap-4 max-w-md">
+          <div className="text-2xl shrink-0">🎓</div>
+          <p className="text-[11px] text-indigo-200 leading-relaxed">
+            <strong>Mental Model:</strong> JSX isn't magic. It's just a <strong>shorthand</strong>. Every tag you write becomes a function call that creates a "Virtual DOM" object.
+          </p>
+        </div>
+        {/* <button 
+          onClick={handleCompile}
+          className="px-8 py-3 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-indigo-50 transition-all active:scale-95"
+        >
+          Run Transformation
+        </button> */}
+      </div>
+    </div>
+  );
+};
+
+const RenderFlowSimulator = () => {
+  const [stage, setStage] = useState<'idle' | 'finding' | 'rendering' | 'complete'>('idle');
+
+  const runRender = () => {
+    setStage('finding');
+    setTimeout(() => setStage('rendering'), 1000);
+    setTimeout(() => setStage('complete'), 2500);
+  };
+
+  const reset = () => setStage('idle');
+
+  return (
+    <div className="bg-slate-50 rounded-3xl p-6 md:p-8 border-2 border-dashed border-slate-200 mb-8">
+      <div className="flex justify-between items-center mb-8">
+        <h4 className="text-slate-800 font-black text-[10px] uppercase tracking-widest">Execution Flow: The Entry Point</h4>
+        <button 
+          onClick={stage === 'complete' ? reset : runRender}
+          disabled={stage === 'finding' || stage === 'rendering'}
+          className={`px-6 py-2 rounded-xl text-xs font-black uppercase transition-all shadow-lg active:scale-95 ${stage === 'complete' ? 'bg-slate-800 text-white' : 'bg-indigo-600 text-white disabled:opacity-50'}`}
+        >
+          {stage === 'idle' && 'Execute root.render()'}
+          {stage === 'finding' && 'Locating #root...'}
+          {stage === 'rendering' && 'Building DOM nodes...'}
+          {stage === 'complete' && 'Reset Simulator'}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+        {/* Left: JavaScript Context */}
+        <div className="flex flex-col">
+          <div className="bg-slate-900 rounded-2xl p-6 shadow-xl relative overflow-hidden border border-white/5 flex-1">
+             <div className="flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
+                <div className="w-2 h-2 rounded-full bg-rose-500"></div>
+                <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                <span className="text-[10px] text-slate-500 font-mono ml-2">index.js</span>
+             </div>
+             <div className="font-mono text-[11px] space-y-4">
+                <div>
+                   <p className="text-slate-500 italic mb-1">{'// 1. Find the mounting point'}</p>
+                   <p className={`transition-all duration-500 p-1 rounded ${stage === 'finding' ? 'bg-indigo-500/30 text-white' : 'text-indigo-300'}`}>
+                     const rootEl = document.<span className="text-amber-300">getElementById</span>(<span className="text-emerald-400">'root'</span>);
+                   </p>
+                </div>
+                <div>
+                   <p className="text-slate-500 italic mb-1">{'// 2. Create React root'}</p>
+                   <p className="text-indigo-300 p-1">
+                      const root = ReactDOM.<span className="text-amber-300">createRoot</span>(rootEl);
+                   </p>
+                </div>
+                <div>
+                   <p className="text-slate-500 italic mb-1">{'// 3. Connect JSX to DOM'}</p>
+                   <p className={`transition-all duration-500 p-1 rounded ${stage === 'rendering' ? 'bg-indigo-500/30 text-white' : 'text-indigo-300'}`}>
+                      root.<span className="text-amber-300">render</span>(<span className="text-green-400">&lt;App /&gt;</span>);
+                   </p>
+                </div>
+             </div>
+          </div>
+        </div>
+
+        {/* Right: The Browser DOM */}
+        <div className="relative">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-full min-h-[280px] flex flex-col">
+             <div className="bg-slate-100 border-b border-slate-200 px-4 py-2 flex items-center gap-2">
+                <div className="w-3 h-3 bg-slate-300 rounded-full"></div>
+                <div className="w-32 h-2 bg-slate-200 rounded-full"></div>
+             </div>
+             <div className="flex-1 p-6 font-mono text-[10px] text-slate-400 relative overflow-hidden">
+                <p className="mb-1">{'<!DOCTYPE html>'}</p>
+                <p className="mb-1">{'<html>'}</p>
+                <p className="mb-1 pl-4">{'<body>'}</p>
+                <div className={`transition-all duration-500 p-4 rounded-xl border-2 border-dashed mx-4 my-2 flex flex-col items-center justify-center min-h-[120px] relative ${stage === 'finding' ? 'border-indigo-500 bg-indigo-50 shadow-inner' : 'border-slate-200'}`}>
+                   <span className="absolute top-1 left-2 text-[8px] font-black uppercase text-slate-300 tracking-tighter">Container</span>
+                   <code className="text-slate-900 font-bold text-xs">{`<div id="root">`}</code>
+                   
+                   {/* UI Injection Point */}
+                   <div className="w-full py-2">
+                      {stage === 'rendering' && (
+                        <div className="space-y-2 py-2">
+                           <div className="h-2 bg-indigo-200 rounded w-3/4 mx-auto animate-pulse"></div>
+                           <div className="h-2 bg-indigo-200 rounded w-1/2 mx-auto animate-pulse"></div>
+                        </div>
+                      )}
+                      {stage === 'complete' && (
+                        <div className="animate-in zoom-in bg-indigo-600 text-white p-4 rounded-xl text-center font-bold shadow-xl border-t-4 border-indigo-400">
+                           <div className="text-xl mb-1">🚀</div>
+                           <p className="text-[10px] uppercase tracking-widest">App Component</p>
+                           <p className="text-[8px] font-normal opacity-70">UI is live on screen</p>
+                        </div>
+                      )}
+                      {stage === 'idle' && (
+                        <div className="py-4 text-center text-[9px] text-slate-300 italic">Empty root container</div>
+                      )}
+                   </div>
+
+                   <code className="text-slate-900 font-bold text-xs">{`</div>`}</code>
+                   
+                   {stage === 'finding' && (
+                     <div className="absolute inset-0 bg-indigo-500/10 animate-pulse rounded-xl"></div>
+                   )}
+                </div>
+                <p className="mb-1 pl-4">{'</body>'}</p>
+                <p>{'</html>'}</p>
+
+                {/* Animated Connection Particle */}
+                {stage === 'rendering' && (
+                   <div className="absolute top-1/2 left-0 w-2 h-2 bg-indigo-500 rounded-full animate-flow-particle shadow-lg shadow-indigo-400"></div>
+                )}
+             </div>
+          </div>
+          
+          <div className="absolute -bottom-2 right-4 bg-slate-800 text-white px-3 py-1 rounded-full text-[8px] font-black tracking-widest shadow-lg">
+             REAL BROWSER DOM
+          </div>
+        </div>
+      </div>
+      
+      <style>{`
+        @keyframes flow-particle {
+          0% { left: -10%; opacity: 0; }
+          20% { opacity: 1; }
+          80% { opacity: 1; }
+          100% { left: 50%; opacity: 0; }
+        }
+        .animate-flow-particle {
+          animation: flow-particle 1.2s infinite ease-in;
+        }
+      `}</style>
+    </div>
+  );
+};
 
 const JSXBasics: React.FC = () => {
   const exampleName = "React Master";
@@ -69,34 +297,19 @@ const JSXBasics: React.FC = () => {
         <p className="mt-6 text-center text-sm text-slate-500 italic">JSX is the "syntactic sugar" that makes our lives easier!</p>
       </section>
 
-      {/* 3 & 4. The Transformation & Tooling (Babel / SWC / Vite) */}
-      <section className="bg-indigo-50 p-8 rounded-2xl border border-indigo-100">
+      {/* 3 & 4. The Transformation Process (INTERACTIVE UPGRADE) */}
+      <section className="bg-indigo-50 p-8 rounded-2xl border border-indigo-100 overflow-hidden">
         <h3 className="text-2xl font-bold text-indigo-900 mb-4 flex items-center gap-2">
           <span>⚙️</span> The Transformation Process
         </h3>
-        <p className="text-indigo-800 mb-8">
+        <p className="text-indigo-800 mb-8 max-w-2xl">
           Browsers don't know what <code>&lt;div&gt;</code> means inside a JavaScript file. 
-          Your JSX must be <strong>transformed</strong> into standard JavaScript at <strong>build time</strong>.
+          Your JSX must be <strong>transformed</strong> into standard JavaScript at <strong>build time</strong> by a tool like Babel.
         </p>
 
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
-          <div className="flex-1 p-4 bg-white rounded-lg border border-indigo-200 text-center shadow-sm">
-            <p className="font-bold text-indigo-600 text-xs">JSX Code</p>
-            <p className="text-[10px] text-slate-400">Written by you</p>
-          </div>
-          <div className="text-indigo-300 font-bold rotate-90 md:rotate-0">➜</div>
-          <div className="flex-1 p-4 bg-indigo-600 rounded-lg text-center shadow-lg">
-            <p className="font-bold text-white text-xs">Babel / SWC</p>
-            <p className="text-[10px] text-indigo-200 uppercase">The Translators</p>
-          </div>
-          <div className="text-indigo-300 font-bold rotate-90 md:rotate-0">➜</div>
-          <div className="flex-1 p-4 bg-white rounded-lg border border-indigo-200 text-center shadow-sm">
-            <p className="font-bold text-indigo-600 text-xs">Plain JS</p>
-            <p className="text-[10px] text-slate-400">Ready for Browser</p>
-          </div>
-        </div>
+        <BabelTransformer />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
           <div className="p-5 bg-white rounded-xl border border-indigo-100">
             <h4 className="font-bold text-indigo-900 mb-2 text-sm">Babel & SWC</h4>
             <p className="text-xs text-indigo-700 leading-relaxed">
@@ -272,11 +485,7 @@ const JSXBasics: React.FC = () => {
           This is handled by <code>ReactDOM.createRoot()</code>.
         </p>
 
-        <div className="bg-slate-900 p-6 rounded-xl text-xs font-mono text-slate-300 mb-6">
-          <p className="text-indigo-400">{'// index.js'}</p>
-          <p>{`const root = ReactDOM.createRoot(document.getElementById('root'));`}</p>
-          <p className="text-green-400">{`root.render(<App />); `}<span className="text-slate-500">{'// This starts the whole UI!'}</span></p>
-        </div>
+        <RenderFlowSimulator />
 
         <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 flex items-center gap-4">
           <div className="w-10 h-10 bg-indigo-100 rounded flex items-center justify-center text-indigo-600 font-bold">!</div>

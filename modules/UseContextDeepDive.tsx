@@ -123,7 +123,8 @@ const ContextReadDemo = () => {
 };
 
 const ReRenderImpactDemo = () => {
-  const [updateCount, setUpdateCount] = useState(0);
+  // Fix for TS error: Being explicit with state type
+  const [updateCount, setUpdateCount] = useState<number>(0);
 
   return (
     <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-8">
@@ -156,7 +157,8 @@ const ReRenderImpactDemo = () => {
   );
 };
 
-const ConsumerCard = ({ id, updateTrigger }: { id: number, updateTrigger: number }) => {
+// Fix for TS error: Typed as React.FC to allow 'key' prop and resolve assignability issues
+const ConsumerCard: React.FC<{ id: number, updateTrigger: number }> = ({ id, updateTrigger }) => {
   const [renders, setRenders] = useState(1);
   const firstRender = React.useRef(true);
 

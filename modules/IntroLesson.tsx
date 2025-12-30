@@ -1,5 +1,181 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+
+const WorkflowSimulator = () => {
+  const [mode, setMode] = useState<'manual' | 'react'>('manual');
+  const [isLiked, setIsLiked] = useState(false);
+  const [manualStep, setManualStep] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const reset = () => {
+    setIsLiked(false);
+    setManualStep(0);
+    setIsProcessing(false);
+  };
+
+  const runManualProcess = () => {
+    if (isProcessing || isLiked) return;
+    setIsProcessing(true);
+    
+    // Step 1: Find Icon
+    setManualStep(1);
+    setTimeout(() => {
+      // Step 2: Change Color
+      setManualStep(2);
+      setTimeout(() => {
+        // Step 3: Update Text
+        setManualStep(3);
+        setIsLiked(true);
+        setIsProcessing(false);
+      }, 1000);
+    }, 1000);
+  };
+
+  const runReactProcess = () => {
+    if (isLiked) {
+      setIsLiked(false);
+      return;
+    }
+    // In React, we just set the data. The UI follows.
+    setIsLiked(true);
+  };
+
+  return (
+    <div className="bg-slate-50 border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+      {/* Tab Switcher */}
+      <div className="flex border-b border-slate-200 bg-white">
+        <button 
+          onClick={() => { setMode('manual'); reset(); }}
+          className={`flex-1 py-4 text-xs font-black uppercase tracking-widest transition-all ${mode === 'manual' ? 'text-rose-600 bg-rose-50/50 border-b-2 border-rose-500' : 'text-slate-400 hover:text-slate-600'}`}
+        >
+          Manual Workflow (Legacy)
+        </button>
+        <button 
+          onClick={() => { setMode('react'); reset(); }}
+          className={`flex-1 py-4 text-xs font-black uppercase tracking-widest transition-all ${mode === 'react' ? 'text-indigo-600 bg-indigo-50/50 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-slate-600'}`}
+        >
+          React Workflow (Modern)
+        </button>
+      </div>
+
+      <div className="p-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        {/* Left Side: The "App Screen" */}
+        <div className="space-y-6">
+          <div className="text-center space-y-2">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">The Browser Output</p>
+            <div className="p-8 bg-white border-2 border-slate-200 rounded-3xl shadow-xl flex flex-col items-center gap-4 transition-all duration-500">
+               <div className={`text-6xl transition-all duration-500 ${isLiked ? 'scale-110' : 'grayscale opacity-20'}`}>
+                 ❤️
+               </div>
+               <div className="text-2xl font-black text-slate-800">
+                 {isLiked ? '1,001 Likes' : '1,000 Likes'}
+               </div>
+               <button 
+                 onClick={mode === 'manual' ? runManualProcess : runReactProcess}
+                 disabled={isProcessing}
+                 className={`w-full py-3 rounded-xl font-bold transition-all shadow-md active:scale-95 ${isLiked && mode === 'react' ? 'bg-slate-100 text-slate-500' : 'bg-rose-500 text-white hover:bg-rose-600'} disabled:opacity-50`}
+               >
+                 {mode === 'manual' 
+                   ? (isProcessing ? 'Processing Steps...' : (isLiked ? 'Liked (Refresh to reset)' : 'Click to Like'))
+                   : (isLiked ? 'Unlike' : 'Click to Like')
+                 }
+               </button>
+            </div>
+          </div>
+          
+          <div className="bg-slate-900 rounded-2xl p-4 font-mono text-[10px]">
+            <p className="text-slate-500 mb-2">// Developer Focus</p>
+            {mode === 'manual' ? (
+              <pre className="text-rose-300 leading-relaxed">
+{`// 1. Find the elements
+const btn = document.querySelector('.btn');
+const count = document.querySelector('.count');
+
+// 2. Add event listener
+btn.addEventListener('click', () => {
+  btn.style.color = 'red';      // Manual step 1
+  count.innerText = '1,001';    // Manual step 2
+});`}
+              </pre>
+            ) : (
+              <pre className="text-indigo-300 leading-relaxed">
+{`// 1. Define the piece of data
+const [liked, setLiked] = useState(false);
+
+// 2. Just update the data!
+<button onClick={() => setLiked(true)}>
+  {liked ? '1,001' : '1,000'}
+</button>`}
+              </pre>
+            )}
+          </div>
+        </div>
+
+        {/* Right Side: The Execution Timeline */}
+        <div className="space-y-6">
+          <h4 className="font-bold text-slate-800 flex items-center gap-2">
+            {mode === 'manual' ? '🐢 Step-by-Step Execution' : '⚡ Declarative Sync'}
+          </h4>
+          
+          <div className="space-y-4 relative">
+            {mode === 'manual' ? (
+              <div className="space-y-3">
+                <div className={`p-4 rounded-xl border-2 transition-all duration-300 ${manualStep >= 1 ? 'border-rose-500 bg-rose-50' : 'border-slate-100 bg-white opacity-40'}`}>
+                  <p className="text-xs font-bold text-rose-700 uppercase mb-1">Step 1: Finding</p>
+                  <p className="text-[10px] text-slate-500 leading-tight">Searching the entire DOM for the heart icon and text node...</p>
+                </div>
+                <div className={`p-4 rounded-xl border-2 transition-all duration-300 ${manualStep >= 2 ? 'border-rose-500 bg-rose-50' : 'border-slate-100 bg-white opacity-40'}`}>
+                  <p className="text-xs font-bold text-rose-700 uppercase mb-1">Step 2: Coloring</p>
+                  <p className="text-[10px] text-slate-500 leading-tight">Manually reaching into the browser and changing CSS styles.</p>
+                </div>
+                <div className={`p-4 rounded-xl border-2 transition-all duration-300 ${manualStep >= 3 ? 'border-rose-500 bg-rose-50' : 'border-slate-100 bg-white opacity-40'}`}>
+                  <p className="text-xs font-bold text-rose-700 uppercase mb-1">Step 3: Text Swap</p>
+                  <p className="text-[10px] text-slate-500 leading-tight">Replacing the inner content of the text node.</p>
+                </div>
+                {manualStep === 0 && !isLiked && (
+                  <div className="p-4 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center h-32">
+                    <p className="text-[10px] text-slate-400 font-medium italic">Click the heart to see the steps...</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className={`p-6 rounded-2xl border-2 transition-all duration-500 ${isLiked ? 'border-indigo-500 bg-indigo-600 text-white shadow-xl scale-105' : 'border-slate-100 bg-white'}`}>
+                   <div className="flex items-center justify-between mb-2">
+                     <p className="text-xs font-bold uppercase tracking-widest">App State</p>
+                     <div className={`w-3 h-3 rounded-full ${isLiked ? 'bg-green-400' : 'bg-slate-200'}`}></div>
+                   </div>
+                   <div className="bg-black/20 p-3 rounded-lg font-mono text-sm">
+                      {`liked: ${isLiked}`}
+                   </div>
+                </div>
+
+                <div className="flex flex-col items-center">
+                   <div className={`text-2xl transition-all duration-700 ${isLiked ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}>👇</div>
+                   <div className={`text-[10px] font-black uppercase text-indigo-400 mt-1 transition-all ${isLiked ? 'opacity-100' : 'opacity-0'}`}>Automatic Render</div>
+                </div>
+
+                <div className={`p-6 rounded-2xl border-2 transition-all duration-500 ${isLiked ? 'border-green-500 bg-green-50 opacity-100 translate-y-0' : 'border-slate-100 bg-white opacity-40 translate-y-4'}`}>
+                   <p className="text-xs font-bold text-green-700 uppercase mb-1">Updated UI</p>
+                   <p className="text-[10px] text-green-600 leading-tight">React detected the state changed and updated the screen automatically.</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      <div className="p-4 bg-slate-900 text-center">
+         <p className="text-[11px] text-slate-400 italic">
+           {mode === 'manual' 
+            ? "Notice how you have to micro-manage every single detail? One mistake and the UI is out of sync." 
+            : "In React, you only worry about the DATA. React ensures the UI matches the data perfectly."}
+         </p>
+         <button onClick={reset} className="mt-2 text-[9px] font-bold text-indigo-400 uppercase tracking-widest underline decoration-indigo-800">Reset Simulator</button>
+      </div>
+    </div>
+  );
+};
 
 const IntroLesson: React.FC = () => {
   return (
@@ -64,61 +240,15 @@ const IntroLesson: React.FC = () => {
         </div>
       </section>
 
-      {/* 3. Before React vs With React Comparison */}
+      {/* 3. The Workflow Shift (INTERACTIVE REPLACEMENT) */}
       <section className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-        <h3 className="text-2xl font-bold text-slate-900 mb-8">The Workflow Shift</h3>
+        <h3 className="text-2xl font-bold text-slate-900 mb-4">The Workflow Shift</h3>
+        <p className="text-slate-600 mb-8 leading-relaxed max-w-3xl">
+          The biggest difference between modern React and legacy coding is <strong>Declarative vs. Imperative</strong>. 
+          In legacy code, you tell the browser exactly <em>how</em> to change every pixel. In React, you just update your <em>data</em>.
+        </p>
         
-        <div className="space-y-12">
-          {/* Before React Flow */}
-          <div className="relative">
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Before React (Manual)</h4>
-            <div className="flex flex-col md:flex-row items-center gap-4">
-              <div className="flex-1 p-4 bg-slate-100 border border-slate-200 rounded-lg text-center">
-                <p className="text-xs font-bold text-slate-700">User Clicks "Like"</p>
-              </div>
-              <div className="text-slate-300">➜</div>
-              <div className="flex-1 p-4 bg-red-50 border border-red-100 rounded-lg text-center">
-                <p className="text-xs font-bold text-red-700 italic">"Go find the Heart icon..."</p>
-              </div>
-              <div className="text-slate-300">➜</div>
-              <div className="flex-1 p-4 bg-red-50 border border-red-100 rounded-lg text-center">
-                <p className="text-xs font-bold text-red-700 italic">"Change color to Red"</p>
-              </div>
-              <div className="text-slate-300">➜</div>
-              <div className="flex-1 p-4 bg-red-50 border border-red-100 rounded-lg text-center">
-                <p className="text-xs font-bold text-red-700 italic">"Find text, add +1"</p>
-              </div>
-            </div>
-            <p className="mt-4 text-[10px] text-slate-400 text-center italic">One missed step = A broken or buggy interface.</p>
-          </div>
-
-          <div className="border-t border-dashed border-slate-200"></div>
-
-          {/* With React Flow */}
-          <div className="relative">
-            <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-6">With React (Automated)</h4>
-            <div className="flex flex-col md:flex-row items-center gap-4">
-              <div className="flex-1 p-4 bg-indigo-50 border border-indigo-100 rounded-lg text-center">
-                <p className="text-xs font-bold text-indigo-700">User Action</p>
-                <p className="text-[10px] text-indigo-400">(Clicks Button)</p>
-              </div>
-              <div className="text-indigo-200">➜</div>
-              <div className="flex-1 p-4 bg-indigo-600 text-white rounded-lg text-center shadow-lg">
-                <p className="text-xs font-bold">Update Data</p>
-                <p className="text-[10px] opacity-80">(State: liked = true)</p>
-              </div>
-              <div className="text-indigo-200">➜</div>
-              <div className="flex-1 p-4 bg-green-50 border border-green-200 rounded-lg text-center">
-                <p className="text-xs font-bold text-green-700">React Updates UI</p>
-                <p className="text-[10px] text-green-500 italic">(Automatically!)</p>
-              </div>
-            </div>
-            <div className="mt-6 bg-slate-900 text-indigo-300 p-4 rounded-xl text-xs font-mono">
-               <span className="text-white">{'// You only worry about the DATA'}</span><br/>
-               setLiked(true); <span className="text-slate-500">{'// React handles the rest!'}</span>
-            </div>
-          </div>
-        </div>
+        <WorkflowSimulator />
       </section>
 
       {/* 4. Why Developers Prefer React */}
