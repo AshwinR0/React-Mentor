@@ -1,8 +1,366 @@
 
 import React, { useState, useEffect } from 'react';
 
+const ModuleSystemInteractive = () => {
+  const [exportType, setExportType] = useState<'default' | 'named'>('default');
+  const [pulse, setPulse] = useState(false);
+
+  const runPulse = () => {
+    setPulse(true);
+    setTimeout(() => setPulse(false), 1000);
+  };
+
+  return (
+    <div className="bg-slate-50 border border-slate-200 rounded-3xl overflow-hidden shadow-sm p-6 md:p-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center relative">
+        
+        {/* Source File */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center px-1">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Source: component.js</span>
+            <div className="flex bg-slate-200 p-0.5 rounded-lg">
+               <button 
+                onClick={() => setExportType('default')}
+                className={`px-3 py-1 rounded-md text-[9px] font-bold transition-all ${exportType === 'default' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500'}`}
+               >
+                Default
+               </button>
+               <button 
+                onClick={() => setExportType('named')}
+                className={`px-3 py-1 rounded-md text-[9px] font-bold transition-all ${exportType === 'named' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500'}`}
+               >
+                Named
+               </button>
+            </div>
+          </div>
+          
+          <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 font-mono text-[11px] h-32 flex flex-col justify-center shadow-inner">
+             <p className="text-slate-500 mb-2">// How we ship code</p>
+             {exportType === 'default' ? (
+               <p className="text-emerald-400"><span className="text-rose-400">export default</span> Button;</p>
+             ) : (
+               <p className="text-emerald-400"><span className="text-rose-400">export const</span> Button = ...</p>
+             )}
+          </div>
+          
+          <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl text-[10px] text-amber-800 leading-relaxed italic">
+             {exportType === 'default' 
+               ? "Default: A file can only have ONE default export. Think of it as the main 'gift' from the file." 
+               : "Named: A file can have many named exports. Think of it as a 'box of tools'."}
+          </div>
+        </div>
+
+        {/* The Connection */}
+        <div className="flex flex-col items-center justify-center gap-2">
+           <button 
+            onClick={runPulse}
+            className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold text-[10px] uppercase shadow-lg active:scale-95 transition-all"
+           >
+             Simulate Import
+           </button>
+           <div className="relative w-full h-10 flex items-center justify-center">
+              <div className="h-px w-full bg-slate-200"></div>
+              {pulse && (
+                <div className="absolute top-1/2 left-0 -translate-y-1/2 w-4 h-4 bg-indigo-500 rounded-full blur-sm animate-flow-right shadow-lg shadow-indigo-500/50"></div>
+              )}
+           </div>
+        </div>
+
+        {/* Consumer File */}
+        <div className="space-y-4">
+          <div className="px-1">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Consumer: App.js</span>
+          </div>
+          
+          <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 font-mono text-[11px] h-32 flex flex-col justify-center shadow-inner relative overflow-hidden">
+             <div className="absolute top-2 right-2 text-[8px] font-bold text-indigo-400 uppercase opacity-30">The Taker</div>
+             <p className="text-slate-500 mb-2">// How we receive code</p>
+             {exportType === 'default' ? (
+               <p className="text-indigo-300">
+                 <span className="text-rose-400">import</span> Button <span className="text-rose-400">from</span> <span className="text-emerald-400">'./Button'</span>;
+               </p>
+             ) : (
+               <p className="text-indigo-300">
+                 <span className="text-rose-400">import</span> <span className="text-white">{`{ Button }`}</span> <span className="text-rose-400">from</span> <span className="text-emerald-400">'./Button'</span>;
+               </p>
+             )}
+          </div>
+
+          <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-[10px] text-indigo-800 leading-relaxed italic">
+             {exportType === 'default' 
+               ? "No curly braces needed! You can even rename it: import MyBtn from './Button'." 
+               : "Curly braces are MANDATORY! The name must match exactly what was exported."}
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes flow-right {
+          0% { left: 0; opacity: 0; transform: translateY(-50%) scale(0.5); }
+          50% { opacity: 1; transform: translateY(-50%) scale(1); }
+          100% { left: 100%; opacity: 0; transform: translateY(-50%) scale(0.5); }
+        }
+        .animate-flow-right {
+          animation: flow-right 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+const PackageComparisonInteractive = () => {
+  const [isInstalling, setIsInstalling] = useState(false);
+  const [rangeType, setRangeType] = useState<'caret' | 'tilde' | 'exact'>('caret');
+  const [hasLocked, setHasLocked] = useState(false);
+
+  const getRange = () => {
+    if (rangeType === 'caret') return '^18.2.0';
+    if (rangeType === 'tilde') return '~18.2.0';
+    return '18.2.0';
+  };
+
+  const getResolved = () => {
+    if (rangeType === 'caret') return '18.3.1'; // Latest minor/patch
+    if (rangeType === 'tilde') return '18.2.9'; // Latest patch only
+    return '18.2.0'; // Exactly what was requested
+  };
+
+  const runInstall = () => {
+    setIsInstalling(true);
+    setHasLocked(false);
+    setTimeout(() => {
+      setIsInstalling(false);
+      setHasLocked(true);
+    }, 1200);
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Analogy Box */}
+      <div className="p-6 bg-amber-50 border-l-4 border-amber-400 rounded-r-xl">
+        <h4 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
+          <span>☕</span> The Coffee Analogy
+        </h4>
+        <p className="text-amber-800 text-sm leading-relaxed">
+          Imagine writing "Any Bag of Coffee" on your shopping list (<strong>package.json</strong>). You're okay with anything that fits that description. 
+          The store receipt (<strong>package-lock.json</strong>) records that you bought "Organic Sumatran Dark Roast, 12oz, Batch #881". 
+          To make sure your teammate drinks the <em>exact same</em> cup of coffee tomorrow, they need your <strong>receipt</strong>, not just your list.
+        </p>
+      </div>
+
+      <div className="bg-slate-50 border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-slate-200 bg-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Interactive Registry Resolver</h4>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setRangeType('caret')}
+                className={`px-3 py-1 rounded text-[10px] font-bold border transition-all ${rangeType === 'caret' ? 'bg-indigo-600 text-white border-indigo-700 shadow-md' : 'bg-white text-slate-500 border-slate-200'}`}
+              >
+                Caret (^)
+              </button>
+              <button 
+                onClick={() => setRangeType('tilde')}
+                className={`px-3 py-1 rounded text-[10px] font-bold border transition-all ${rangeType === 'tilde' ? 'bg-indigo-600 text-white border-indigo-700 shadow-md' : 'bg-white text-slate-500 border-slate-200'}`}
+              >
+                Tilde (~)
+              </button>
+              <button 
+                onClick={() => setRangeType('exact')}
+                className={`px-3 py-1 rounded text-[10px] font-bold border transition-all ${rangeType === 'exact' ? 'bg-indigo-600 text-white border-indigo-700 shadow-md' : 'bg-white text-slate-500 border-slate-200'}`}
+              >
+                Exact
+              </button>
+            </div>
+          </div>
+          <button 
+            onClick={runInstall}
+            disabled={isInstalling}
+            className={`px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95 ${isInstalling ? 'bg-slate-100 text-slate-400' : 'bg-slate-900 text-white hover:bg-slate-800'}`}
+          >
+            {isInstalling ? 'Running npm install...' : 'Run npm install'}
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-slate-200 relative">
+          {/* Left: package.json */}
+          <div className="bg-white p-8 space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="text-indigo-600">📄</span>
+              <h5 className="font-bold text-slate-800 text-sm">package.json</h5>
+            </div>
+            <div className="bg-slate-900 p-6 rounded-2xl font-mono text-xs text-indigo-300 shadow-inner min-h-[160px] flex flex-col justify-center">
+              <p className="text-slate-500 mb-2">{"// The Wishlist"}</p>
+              <div className="space-y-1">
+                <p>"{`dependencies`}" : &#123;</p>
+                <p className="pl-4">
+                  "react": "<span className="text-amber-300 font-bold underline decoration-amber-500 underline-offset-4">{getRange()}</span>"
+                </p>
+                <p>&#125;</p>
+              </div>
+            </div>
+            <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-lg text-[10px] text-indigo-700 leading-relaxed italic">
+              {rangeType === 'caret' && "Caret (^) allows new minor versions (e.g., 18.3.0, 18.4.0) but not major ones (19.0.0)."}
+              {rangeType === 'tilde' && "Tilde (~) allows only patch versions (e.g., 18.2.1, 18.2.2). Very conservative."}
+              {rangeType === 'exact' && "Exact versions disable all automatic updates. Safest but requires manual work."}
+            </div>
+          </div>
+
+          {/* Right: package-lock.json */}
+          <div className="bg-slate-900 p-8 space-y-4 relative">
+            <div className="flex items-center gap-2">
+              <span className="text-indigo-400">🔒</span>
+              <h5 className="font-bold text-slate-300 text-sm">package-lock.json</h5>
+            </div>
+            <div className={`transition-all duration-700 min-h-[160px] flex flex-col justify-center ${isInstalling ? 'opacity-20 blur-sm' : 'opacity-100'}`}>
+              {hasLocked ? (
+                <div className="bg-slate-950 p-6 rounded-2xl font-mono text-xs text-emerald-400 shadow-inner border border-emerald-500/20 animate-in zoom-in-95">
+                  <p className="text-slate-500 mb-2">{"// The Detailed Receipt"}</p>
+                  <div className="space-y-1">
+                    <p>"react": &#123;</p>
+                    <p className="pl-4">"version": "<span className="font-black underline decoration-emerald-500 underline-offset-4">{getResolved()}</span>",</p>
+                    <p className="pl-4 opacity-50">"resolved": "https://registry.npmjs.org/...",</p>
+                    <p className="pl-4 opacity-50">"integrity": "sha512-..."</p>
+                    <p>&#125;</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-40 flex items-center justify-center border-2 border-dashed border-slate-800 rounded-2xl text-slate-600 text-[10px] uppercase font-bold tracking-widest italic">
+                  Run install to generate lock
+                </div>
+              )}
+            </div>
+            {hasLocked && (
+               <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-[10px] text-emerald-400 leading-relaxed italic animate-in fade-in">
+                "Regardless of the range in package.json, everyone on your team will now install exactly <strong>{getResolved()}</strong>."
+              </div>
+            )}
+            
+            {/* Visual Arrow for Handoff */}
+            {isInstalling && (
+              <div className="absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 z-50 text-indigo-400 text-4xl animate-bounce">➜</div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ReactVsDomInteractive = () => {
+  const [step, setStep] = useState<'idle' | 'architect' | 'contractor'>('idle');
+  const [uiValue, setUiValue] = useState('Hello World');
+
+  const runSimulation = () => {
+    setStep('architect');
+    setTimeout(() => setStep('contractor'), 1500);
+    setTimeout(() => setStep('idle'), 3500);
+  };
+
+  return (
+    <div className="bg-slate-50 border border-slate-200 rounded-3xl overflow-hidden shadow-sm p-6 md:p-10">
+      <div className="flex flex-col md:flex-row gap-8 items-stretch">
+        
+        {/* Left: Design Studio (React) */}
+        <div className={`flex-1 p-6 rounded-2xl border-2 transition-all duration-500 relative ${step === 'architect' ? 'border-indigo-500 bg-white shadow-xl scale-105 z-20' : 'border-slate-200 bg-slate-50/50 opacity-60'}`}>
+          <div className="absolute -top-3 left-4 px-2 bg-indigo-600 text-white text-[9px] font-black uppercase rounded">The Architect (React)</div>
+          
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+               <div className="text-2xl">⚛️</div>
+               <div>
+                  <p className="text-xs font-bold text-slate-800 uppercase">Package: "react"</p>
+                  <p className="text-[10px] text-slate-400 font-medium">Responsibility: Logic & Blueprints</p>
+               </div>
+            </div>
+
+            <div className="bg-slate-900 p-4 rounded-xl font-mono text-[10px] text-indigo-300">
+               <p className="text-slate-500 mb-1">// 1. Handles state logic</p>
+               <p className="text-white">const [text, setText] = useState(...)</p>
+               <p className="text-slate-500 my-1">// 2. Creates the "Blueprint"</p>
+               <p className="text-emerald-400">{`return <h1>{text}</h1>`}</p>
+            </div>
+
+            {step === 'architect' && (
+              <div className="animate-in slide-in-from-bottom-2 fade-in p-3 bg-indigo-50 border border-indigo-200 rounded-lg text-center">
+                 <p className="text-[10px] font-black text-indigo-600 uppercase mb-1">Blueprint Generated</p>
+                 <div className="h-10 w-full border-2 border-dashed border-indigo-300 rounded flex items-center justify-center text-[10px] text-indigo-400 italic">
+                    Virtual DOM: "{uiValue}"
+                 </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Center: Hand-off */}
+        <div className="flex flex-col items-center justify-center py-4">
+           <div className={`text-2xl transition-all duration-500 ${step === 'contractor' ? 'text-indigo-600 scale-125' : 'text-slate-200'}`}>➜</div>
+           <div className={`text-[8px] font-black uppercase transition-all whitespace-nowrap ${step === 'contractor' ? 'text-indigo-600' : 'text-slate-300'}`}>Handoff</div>
+        </div>
+
+        {/* Right: Construction Site (ReactDOM) */}
+        <div className={`flex-1 p-6 rounded-2xl border-2 transition-all duration-500 relative ${step === 'contractor' ? 'border-green-500 bg-white shadow-xl scale-105 z-20' : 'border-slate-200 bg-slate-50/50 opacity-60'}`}>
+          <div className="absolute -top-3 left-4 px-2 bg-green-600 text-white text-[9px] font-black uppercase rounded">The Contractor (ReactDOM)</div>
+          
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+               <div className="text-2xl">🛠️</div>
+               <div>
+                  <p className="text-xs font-bold text-slate-800 uppercase">Package: "react-dom"</p>
+                  <p className="text-[10px] text-slate-400 font-medium">Responsibility: Building in Browser</p>
+               </div>
+            </div>
+
+            <div className="bg-slate-100 p-4 rounded-xl border border-slate-200 font-mono text-[10px] text-slate-600">
+               <p className="mb-1 opacity-60 italic">{"// 3. Takes blueprint & builds it"}</p>
+               <p><span className="text-green-600 font-bold">root.render</span>(blueprint)</p>
+            </div>
+
+            <div className="relative h-20 bg-slate-900 rounded-xl overflow-hidden flex flex-col items-center justify-center p-4 border border-white/5 shadow-inner">
+               <span className="absolute top-1 left-2 text-[8px] font-black text-white/20 uppercase tracking-tighter">Real Browser DOM</span>
+               {step === 'contractor' ? (
+                 <div className="text-white font-black text-sm animate-in zoom-in-50 bg-indigo-600 px-3 py-1 rounded shadow-lg border-b-2 border-indigo-700">
+                    {uiValue}
+                 </div>
+               ) : (
+                 <div className="text-slate-700 text-[10px] italic">Construction Site Empty</div>
+               )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-10 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-slate-200 pt-6">
+        <div className="flex-1 space-y-1">
+           <p className="text-[11px] text-slate-500 leading-relaxed italic">
+             "Notice how the <strong>Architect (React)</strong> doesn't know what a Browser is. It just makes plans. 
+             The <strong>Contractor (ReactDOM)</strong> knows how to use a hammer and nails (DOM APIs) to build those plans on the web."
+           </p>
+        </div>
+        <div className="flex gap-4">
+          <input 
+            type="text" 
+            value={uiValue}
+            onChange={(e) => setUiValue(e.target.value)}
+            disabled={step !== 'idle'}
+            className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none w-32 disabled:opacity-50"
+            placeholder="Change UI..."
+          />
+          <button 
+            onClick={runSimulation}
+            disabled={step !== 'idle'}
+            className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold text-xs shadow-lg active:scale-95 transition-all disabled:opacity-50"
+          >
+            Start UI Update
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const FolderStructure: React.FC = () => {
-  // 1. React vs ReactDOM Toggle
+  // 1. React vs ReactDOM Toggle (Legacy - Kept for reference but simulator replaced)
   const [reactStage, setReactStage] = useState<'react' | 'dom'>('react');
 
   // 2. Platform Switcher
@@ -39,51 +397,15 @@ const FolderStructure: React.FC = () => {
         </p>
       </section>
 
-      {/* 1. React vs ReactDOM */}
+      {/* 1. React vs ReactDOM (REFACTORED INTERACTIVE) */}
       <section className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
         <h3 className="text-2xl font-bold text-slate-900 mb-2">React vs ReactDOM — What’s the Difference?</h3>
-        <p className="text-slate-600 mb-8 italic">Analogy: React is the <strong>Planner</strong> (Blueprint), ReactDOM is the <strong>Builder</strong> (Construction).</p>
+        <p className="text-slate-600 mb-8 leading-relaxed max-w-2xl">
+          It's common to think they are the same, but they are separate packages for a reason. 
+          React is the <strong>Brain</strong> that handles logic, while ReactDOM is the <strong>Hands</strong> that actually touch the browser.
+        </p>
 
-        <div className="flex flex-col items-center gap-8">
-          <div className="flex gap-2">
-            <button 
-              onClick={() => setReactStage('react')}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${reactStage === 'react' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-slate-100 text-slate-500'}`}
-            >
-              1. React Only
-            </button>
-            <button 
-              onClick={() => setReactStage('dom')}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${reactStage === 'dom' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-slate-100 text-slate-500'}`}
-            >
-              2. React + ReactDOM
-            </button>
-          </div>
-
-          <div className="flex items-center gap-4 w-full max-w-2xl justify-between">
-            <div className={`flex flex-col items-center gap-2 transition-all ${reactStage === 'react' || reactStage === 'dom' ? 'opacity-100' : 'opacity-20'}`}>
-              <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center font-bold">🧩</div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase">Component</p>
-            </div>
-            <div className="text-slate-300">➜</div>
-            <div className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${reactStage === 'react' ? 'border-indigo-500 bg-indigo-50' : 'border-slate-100 opacity-50'}`}>
-              <div className="w-12 h-12 bg-indigo-600 text-white rounded-lg flex items-center justify-center font-bold">⚛️</div>
-              <p className="text-[10px] font-bold text-indigo-600 uppercase">React Package</p>
-              <p className="text-[8px] text-indigo-400">Logic & State</p>
-            </div>
-            <div className={`text-slate-300 transition-opacity ${reactStage === 'dom' ? 'opacity-100' : 'opacity-20'}`}>➜</div>
-            <div className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${reactStage === 'dom' ? 'border-green-500 bg-green-50' : 'border-slate-100 opacity-50'}`}>
-              <div className="w-12 h-12 bg-green-600 text-white rounded-lg flex items-center justify-center font-bold">🛠️</div>
-              <p className="text-[10px] font-bold text-green-600 uppercase tracking-tighter">ReactDOM Package</p>
-              <p className="text-[8px] text-green-400">Updates Browser</p>
-            </div>
-            <div className={`text-slate-300 transition-opacity ${reactStage === 'dom' ? 'opacity-100' : 'opacity-20'}`}>➜</div>
-            <div className={`flex flex-col items-center gap-2 transition-all ${reactStage === 'dom' ? 'opacity-100' : 'opacity-20'}`}>
-              <div className="w-12 h-12 bg-slate-100 text-slate-600 rounded-lg flex items-center justify-center font-bold">🌐</div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase">Browser DOM</p>
-            </div>
-          </div>
-        </div>
+        <ReactVsDomInteractive />
       </section>
 
       {/* 2. Why are they separate? */}
@@ -361,27 +683,14 @@ const FolderStructure: React.FC = () => {
         </div>
       </section>
 
-      {/* 9. package.json vs lock */}
+      {/* 9. package.json vs package-lock.json */}
       <section className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-        <h3 className="text-2xl font-bold text-slate-900 mb-2">The "Wishlist" vs The "Receipt"</h3>
-        <p className="text-slate-600 mb-8"><code>package.json</code> says what you want. <code>package-lock.json</code> records exactly what was installed.</p>
+        <h3 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">package.json vs package-lock.json</h3>
+        <p className="text-slate-600 mb-8 leading-relaxed">
+          These two files work together to manage your dependencies. <code>package.json</code> defines the <strong>Intent</strong> (what you want), while <code>package-lock.json</code> defines the <strong>Reality</strong> (what exactly was installed).
+        </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           <div className="p-6 bg-indigo-50 border border-indigo-200 rounded-xl">
-              <h4 className="font-bold text-indigo-900 text-sm mb-2">package.json</h4>
-              <div className="p-3 bg-white rounded border font-mono text-xs">
-                 "react": "^18.3.0"
-              </div>
-              <p className="text-[10px] text-indigo-600 mt-2 italic">"^ means 'Give me the latest version of 18'"</p>
-           </div>
-           <div className="p-6 bg-slate-900 text-white rounded-xl">
-              <h4 className="font-bold text-slate-400 text-sm mb-2">package-lock.json</h4>
-              <div className="p-3 bg-white/10 rounded border border-white/20 font-mono text-xs text-indigo-300">
-                 "version": "18.3.1"
-              </div>
-              <p className="text-[10px] text-slate-500 mt-2 italic">"Locked to the exact version used last time."</p>
-           </div>
-        </div>
+        <PackageComparisonInteractive />
       </section>
 
       {/* 10. ES6 Mapper */}
@@ -426,44 +735,12 @@ const age = props.age;`}</pre>
         </div>
       </section>
 
-      {/* 11. Modules */}
+      {/* 11. Modules (UPDATED) */}
       <section className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
         <h3 className="text-2xl font-bold text-slate-900 mb-2">Imports & Exports</h3>
-        <p className="text-slate-600 mb-8 italic">Modules let us split our app into many small, manageable files.</p>
+        <p className="text-slate-600 mb-8 italic">Modules let us split our app into many small, manageable files. There are two main ways to share code.</p>
 
-        <div className="flex flex-col md:flex-row items-center justify-center gap-10 py-10">
-           <div className="flex flex-col gap-4">
-              <div className="p-4 bg-white border-2 border-slate-200 rounded-xl shadow-sm relative w-48 group">
-                 <div className="text-[10px] font-bold text-slate-400 mb-2 uppercase">Button.jsx</div>
-                 <div className="bg-slate-900 p-2 rounded text-[10px] font-mono text-green-400">
-                    export default Button;
-                 </div>
-                 <div className="absolute left-full top-1/2 w-10 h-px bg-indigo-300 -translate-y-1/2"></div>
-              </div>
-              <div className="p-4 bg-white border-2 border-slate-200 rounded-xl shadow-sm relative w-48">
-                 <div className="text-[10px] font-bold text-slate-400 mb-2 uppercase">Utils.js</div>
-                 <div className="bg-slate-900 p-2 rounded text-[10px] font-mono text-amber-400">
-                    export const sum = ...
-                 </div>
-                 <div className="absolute left-full top-1/2 w-10 h-px bg-indigo-300 -translate-y-1/2 translate-x-1"></div>
-              </div>
-           </div>
-           
-           <div className="text-indigo-400 text-3xl">➔</div>
-
-           <div className="p-8 bg-indigo-600 rounded-3xl text-white shadow-2xl w-64 relative overflow-hidden">
-              <div className="text-[10px] font-bold opacity-70 mb-4 uppercase">App.jsx</div>
-              <div className="bg-slate-900 p-4 rounded-xl text-[10px] font-mono text-indigo-300 space-y-1">
-                 <p><span className="text-rose-400">import</span> Button <span className="text-rose-400">from</span> './Button'</p>
-                 <p><span className="text-rose-400">import</span> {'{ sum }'} <span className="text-rose-400">from</span> './Utils'</p>
-              </div>
-              <div className="mt-6 p-3 bg-white/10 rounded-lg text-[10px] font-medium text-indigo-100">
-                 The bundler connects these files into one single "graph".
-              </div>
-              {/* Animated particles moving towards App.jsx */}
-              <div className="absolute top-0 right-0 w-2 h-2 bg-indigo-400 rounded-full animate-ping"></div>
-           </div>
-        </div>
+        <ModuleSystemInteractive />
       </section>
 
       {/* FINAL TAKEAWAY */}

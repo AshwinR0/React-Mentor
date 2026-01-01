@@ -177,6 +177,141 @@ const [liked, setLiked] = useState(false);
   );
 };
 
+const BlueprintAnalogySimulator = () => {
+  const [config, setConfig] = useState({
+    color: 'bg-indigo-500',
+    hasWindow: true,
+    hasDoor: true,
+    stories: 1
+  });
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const updateConfig = (key: string, value: any) => {
+    setIsSyncing(true);
+    setConfig(prev => ({ ...prev, [key]: value }));
+    setTimeout(() => setIsSyncing(false), 600);
+  };
+
+  return (
+    <div className="bg-slate-50 border border-slate-200 rounded-3xl overflow-hidden shadow-sm p-6 md:p-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch">
+        
+        {/* Left: The Blueprint (Code/Plan) */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">1. The Blueprint (JSX)</h4>
+            {isSyncing && <span className="text-[9px] font-bold text-indigo-600 animate-pulse bg-indigo-50 px-2 py-0.5 rounded">SYNCING TO DOM...</span>}
+          </div>
+
+          <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4 h-full flex flex-col">
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Wall Color</label>
+              <div className="flex gap-2">
+                {['bg-indigo-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500'].map(c => (
+                  <button 
+                    key={c}
+                    onClick={() => updateConfig('color', c)}
+                    className={`w-6 h-6 rounded-full border-2 transition-all ${config.color === c ? 'border-white scale-110 shadow-lg' : 'border-transparent opacity-40 hover:opacity-100'} ${c}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-tight flex items-center justify-between">
+                Features
+              </label>
+              <div className="flex flex-wrap gap-2">
+                <button 
+                  onClick={() => updateConfig('hasWindow', !config.hasWindow)}
+                  className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${config.hasWindow ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-800 text-slate-500 border border-slate-700'}`}
+                >
+                  {config.hasWindow ? 'Remove Window' : 'Add Window'}
+                </button>
+                <button 
+                  onClick={() => updateConfig('hasDoor', !config.hasDoor)}
+                  className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${config.hasDoor ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-800 text-slate-500 border border-slate-700'}`}
+                >
+                  {config.hasDoor ? 'Remove Door' : 'Add Door'}
+                </button>
+                <button 
+                  onClick={() => updateConfig('stories', config.stories === 1 ? 2 : 1)}
+                  className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${config.stories === 2 ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-800 text-slate-500 border border-slate-700'}`}
+                >
+                  {config.stories === 1 ? 'Add 2nd Story' : 'Remove 2nd Story'}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 mt-4 pt-6 border-t border-white/5 font-mono text-[10px] text-indigo-300 overflow-hidden">
+               <p className="text-slate-500 mb-2">// How you describe the UI</p>
+               <div className="space-y-0.5">
+                <p>{`<House`}</p>
+                <p className="pl-4">color="<span className="text-emerald-400">{config.color.split('-')[1]}</span>"</p>
+                <p className="pl-4">stories={<span className="text-amber-400">{config.stories}</span>}</p>
+                {config.hasWindow && <p className="pl-4">hasWindow</p>}
+                {config.hasDoor && <p className="pl-4">hasDoor</p>}
+                <p>{`/>`}</p>
+               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: The Construction (DOM) */}
+        <div className="space-y-6 flex flex-col">
+          <div className="flex items-center justify-between">
+            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">2. The Real DOM (Browser)</h4>
+            <span className="text-[10px] text-slate-400 italic">Re-rendering...</span>
+          </div>
+
+          <div className="flex-1 bg-white border-2 border-dashed border-slate-200 rounded-2xl p-8 relative flex flex-col items-center justify-center overflow-hidden">
+             {/* The House Visual */}
+             <div className="relative w-48 transition-all duration-700" style={{ height: config.stories === 1 ? '160px' : '220px' }}>
+                {/* Roof */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[100px] border-r-[100px] border-b-[60px] border-l-transparent border-r-transparent border-b-slate-800 z-10 transition-all duration-700" style={{ top: config.stories === 1 ? '0px' : '0px' }}></div>
+                
+                {/* Structure Layer 2 */}
+                <div className={`absolute left-4 right-4 bg-indigo-50 border-x-4 border-slate-800 transition-all duration-700 overflow-hidden ${config.stories === 2 ? 'h-[60px] top-[60px] opacity-100 scale-y-100' : 'h-0 top-[60px] opacity-0 scale-y-0'} ${config.color} border-t-4`}>
+                    {config.hasWindow && (
+                      <div className="absolute top-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-sky-200 border-2 border-slate-800 shadow-inner"></div>
+                    )}
+                </div>
+
+                {/* Structure Layer 1 */}
+                <div className={`absolute bottom-0 left-4 right-4 border-4 border-slate-800 transition-all duration-700 ${config.color}`} style={{ height: '100px' }}>
+                   {config.hasWindow && (
+                     <div className="absolute top-6 left-4 w-8 h-8 bg-sky-200 border-2 border-slate-800 shadow-inner"></div>
+                   )}
+                   {config.hasDoor && (
+                     <div className="absolute bottom-0 right-4 w-10 h-14 bg-amber-900 border-x-2 border-t-2 border-slate-800 rounded-t shadow-lg">
+                        <div className="absolute top-1/2 right-2 w-1.5 h-1.5 bg-amber-400 rounded-full"></div>
+                     </div>
+                   )}
+                </div>
+             </div>
+
+             {/* Reconciliation Flash Overlay */}
+             {isSyncing && (
+               <div className="absolute inset-0 bg-indigo-600/10 backdrop-blur-[1px] flex items-center justify-center animate-in fade-in duration-300">
+                  <div className="p-4 bg-white rounded-xl shadow-2xl border border-indigo-100 flex items-center gap-3">
+                     <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                     <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Reconciling Differences</p>
+                  </div>
+               </div>
+             )}
+
+             <div className="mt-8 text-center px-4">
+                <p className="text-[11px] text-slate-500 leading-relaxed italic">
+                  "Notice how you didn't have to manually 'create element' or 'append child'. You changed the <strong>Blueprint</strong>, and React calculated the <strong>Diff</strong> to update the browser."
+                </p>
+             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const IntroLesson: React.FC = () => {
   return (
     <div className="space-y-12 animate-in fade-in duration-500">
@@ -298,25 +433,15 @@ const IntroLesson: React.FC = () => {
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-700 rounded-full blur-2xl -ml-24 -mb-24 opacity-30"></div>
       </section>
 
-      {/* Blueprint section retained for continuity */}
+      {/* 5. The Blueprint Analogy (INTERACTIVE UPGRADE) */}
       <section className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-        <h3 className="text-xl font-bold text-slate-900 mb-4">The Blueprint Analogy</h3>
-        <p className="text-slate-600 mb-6 leading-relaxed">
+        <h3 className="text-2xl font-bold text-slate-900 mb-4">The Blueprint Analogy</h3>
+        <p className="text-slate-600 mb-8 leading-relaxed max-w-3xl">
           Imagine building a house. Instead of telling builders where every single brick goes, you provide a 
-          <strong> Blueprint</strong>. When you want to change a wall, you just update the blueprint and the 
-          builders (React) figure out exactly which bricks to move.
+          <strong> Blueprint</strong>. React components act as these blueprints—they define how a piece of UI should look, and React handles the "building" on the screen.
         </p>
         
-        <div className="flex flex-col items-center gap-4 p-8 bg-slate-50 rounded-xl">
-          <div className="w-full max-w-sm p-4 bg-white border border-slate-200 rounded-lg shadow-sm">
-            <div className="h-4 w-2/3 bg-slate-100 rounded mb-4"></div>
-            <div className="flex gap-2">
-              <div className="h-8 flex-1 bg-indigo-100 border border-indigo-200 rounded flex items-center justify-center text-[10px] text-indigo-700 font-bold uppercase tracking-widest">Component Block</div>
-              <div className="h-8 flex-1 bg-indigo-100 border border-indigo-200 rounded flex items-center justify-center text-[10px] text-indigo-700 font-bold uppercase tracking-widest">Component Block</div>
-            </div>
-          </div>
-          <p className="text-xs text-slate-400 font-medium mt-2">Thinking in Components: [ App [ Nav, [ Item, Item ] ] ]</p>
-        </div>
+        <BlueprintAnalogySimulator />
       </section>
     </div>
   );
