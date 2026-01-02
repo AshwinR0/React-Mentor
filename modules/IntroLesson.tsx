@@ -318,7 +318,6 @@ const IntroLesson: React.FC = () => {
       {/* 1. Improved Definition */}
       <section className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
         <div className="flex items-center gap-3 mb-4">
-          <div className="bg-indigo-600 text-white p-2 rounded-lg text-xl font-bold">⚛️</div>
           <h3 className="text-3xl font-extrabold text-slate-900">What is React?</h3>
         </div>
         <p className="text-lg text-slate-600 leading-relaxed mb-6">
