@@ -50,6 +50,8 @@ const sections = [
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ activeLesson, onSelectLesson, isOpen, onClose }) => {
+  const [logoSrc, setLogoSrc] = React.useState('/favicon.svg');
+  const [logoError, setLogoError] = React.useState(false);
   return (
     <>
       {/* Mobile Backdrop */}
@@ -67,7 +69,24 @@ const Sidebar: React.FC<SidebarProps> = ({ activeLesson, onSelectLesson, isOpen,
         <div className="p-6 flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-indigo-600 flex items-center gap-2">
-              <span className="text-2xl">⚛️</span> ReactTutor
+              {!logoError ? (
+                <img
+                  src={logoSrc}
+                  alt="ReactTutor logo"
+                  className="w-8 h-8 rounded-md object-cover p-1"
+                  onError={() => {
+                    // Try fallback to favicon, then show emoji
+                    if (logoSrc !== '/favicon.svg') {
+                      setLogoSrc('/favicon.svg');
+                    } else {
+                      setLogoError(true);
+                    }
+                  }}
+                />
+              ) : (
+                <span className="text-2xl">⚛️</span>
+              )}
+              ReactTutor
             </h1>
             <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider font-semibold">Senior Path</p>
           </div>
